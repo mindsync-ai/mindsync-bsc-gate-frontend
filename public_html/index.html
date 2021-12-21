@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Mindsync.ai - BEP20 to ERC20 Gateway</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Mindsync Binance Smart Chain to Ethereum Gateway"/>
+
+    <meta itemprop="name" content="Mindsync.ai">
+    <meta itemprop="description" content="Mindsync Binance Smart Chain (BSC) to Ethereum (ERC20) Gateway">
+    <meta itemprop="image" content="https://mindsync.ai/media/logo/logo.png">
+
+    <meta name="twitter:title" content="Mindsync.ai">
+    <meta name="twitter:description" content="Mindsync Binance Smart Chain to Ethereum Gateway">
+    <meta name="twitter:image" content="https://mindsync.ai/media/logo/logo.png">
+
+    <meta property="og:title" content="Mindsync.ai"/>
+    <meta property="og:type" content="article"/>
+    <meta property="og:url" content="https://mindsync.ai/"/>
+    <meta property="og:image" content="https://mindsync.ai/media/logo/logo.png"/>
+    <meta property="og:description" content="Mindsync Binance Smart Chain to Ethereum Gateway"/>
+    <meta property="og:site_name" content="Mindsync"/>
+
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+    <link rel="preload" href="fonts/sf-ui-display-light.woff2" as="font" crossorigin="anonymous"/>
+    <link rel="preload" href="fonts/sf-ui-display-medium.woff2" as="font" crossorigin="anonymous"/>
+    <link rel="stylesheet" type="text/css" href="css/style.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js" defer></script>
+    <script src="https://unpkg.com/@metamask/detect-provider/dist/detect-provider.min.js" defer></script>
+</head>
+
+<body>
+<div class="wrapper">
+    <header class="header">
+        <div class="container">
+            <div class="header__wrap">
+                <div class="header__logo">
+                    <img src="img/logo.png" alt="Mindsync">
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="main">
+        <div class="container">
+
+            <!-- step-form start -->
+            <form class="steps-form" method="post" action="#" onsubmit="return false">
+                <h1 class="header__title">Mindsync (MAI) tokens</h1>
+                <h2 class="header__title2">Binance Smart Chain &lt;-&gt; Ethereum bridge</h2><br>
+                <p class="step__desc">Mindsync is excited to release the Binance Smart Chain (BSC) bridge, which
+                    marks the
+                    inception of tokens in BSC. It allows MAI token holders to seamlessly bridge their MAI tokens
+                    over to the
+                    Binance Smart Chain (BEP20) standard.</p>
+
+                <h2 class="steps-form__title">Swap your MAI tokens between blockchains</h2>
+                <p class="step__desc" id="loading">Interacting with the blockchain... Please wait <img
+                        src='wait2.gif'></p><br>
+                <div id="steps" style="visibility: hidden;">
+                    <fieldset id="step1" class="step active">
+                        <legend class="step__title">Select swap direction</legend>
+                        <div id="step1" class="step__main">
+                            <p class="step__desc">For example, to swap Ethereum (ERC20) MAI tokens for BSC (BEP20) MAI
+                                tokens, you
+                                should select "Ethereum → BSC" option in the selection field or just select network in
+                                your
+                                wallet.</p>
+                            <div class="step__label">
+                                <div class="step__select js-styled-select">
+                                    <select tabindex="1" id="chains">
+                                        <option value="">Select</option>
+                                        <option value="0x1">Ethereum → BSC</option>
+                                        <option value="0x38">BSC → Ethereum</option>
+                                        <option value="0x4">ETH → BSC Rinkeby</option>
+                                        <option value="0x61">BSC → ETH Rinkeby</option>
+                                    </select>
+                                </div>
+                                <div class="step__error" id="chain">Please, select network in your wallet</div>
+                            </div>
+                            <button class="step__next" type="button" tabindex="2"
+                                    onClick="step(1)">NEXT
+                            </button>
+                            <br><br>
+                            <p class="step__desc">To be able to use MetaMask with Binance Smart Chain you should
+                                configure
+                                it first.<br>
+                                Please <a href="https://docs.binance.org/smart-chain/wallet/metamask.html">read this
+                                    article</a>
+                                on how to use MetaMask with Binance Smart Chain.<br>
+                                Please make sure you are using the following settings:<br>
+                            </p>
+                            <ul class="step__desc">
+                                <li>ChainID: 0x38, 56 in decimal (if 56 doesn’t work, try 0x38)</li>
+                                <li>Symbol: BNB</li>
+                                <li>Block Explorer: https://bscscan.com</li>
+                            </ul>
+                            <p class="step__desc">If you use another wallet, such as Trust Wallet, see <a
+                                    href="https://docs.binance.org/wallets/bsc-wallets.html">BSC wallet support</a>
+                                page.</p>
+                        </div>
+                    </fieldset>
+
+                    <fieldset id="step2" class="step">
+                        <legend class="step__title">Enter the desired swap amount</legend>
+                        <div class="step__main">
+                            <p class="step__desc" id="balance"></p>
+                            <p class="step__desc">Enter the desired swap amount and click "Next".</p>
+
+                            <div class="step__slider">
+                                <label class="step__label">
+                                    <input type="text" id="range_value" class="step__input" value="0" tabindex="3"
+                                           onchange="change(this.value)">
+                                </label>
+                                <input class="step__range" type="range" id="range" min="0" max="0" value=0 step="0.1"
+                                       tabindex="4" onChange="change(this.value)">
+                            </div>
+                            <button class="step__next" type="button" tabindex="5" onClick="step(1, true)">BACK</button>
+                            <button class="step__next" type="button" tabindex="5" onClick="step(2)"
+                                    id="increase">NEXT
+                            </button>
+                        </div>
+                    </fieldset>
+
+                    <fieldset id="step3" class="step">
+                        <legend class="step__title">Increase allowance</legend>
+                        <div class="step__main">
+                            <p class="step__desc" id="allowance">Receiving allowance from the blockchain...</p>
+                            <p class="step__desc">Before initializing the swap, you should increase allowance so that
+                                your funds can
+                                be transferred by the swap contract.<br>
+                                The app will calculate the corresponding allowance value and either ask you to submit
+                                the transaction or
+                                skip this step.<br>
+                                Click "Increase allowance" button.</p>
+                            <button class="step__next" id="step3__back" type="button" tabindex="5"
+                                    onClick="step(2, true)">BACK
+                            </button>
+                            <button class="step__next" id="step3__next" type="button" tabindex="6" onClick="step(3)">
+                                INCREASE
+                                ALLOWANCE
+                            </button>
+                        </div>
+                    </fieldset>
+
+                    <fieldset id="step4" class="step">
+                        <legend class="step__title">Initialize token swap</legend>
+                        <div class="step__main">
+                            <p class="step__desc" id="allowance2">Updating allowance from the blockchain...</p>
+                            <p class="step__desc">At this stage you we will send MAI tokens to swap contract.<br>
+                                You will receive tokens to the same address on the selected network after the
+                                transactions are
+                                completed.</p>
+                            <button class="step__next" id="step4__back" type="button" tabindex="5"
+                                    onClick="step(3, true)">BACK
+                            </button>
+                            <button class="step__next" id="step4__next" type="button" tabindex="7" onClick="step(4)">
+                                SWAP TOKENS
+                            </button>
+                        </div>
+                    </fieldset>
+                </div>
+            </form>
+            <div id="log"></div>
+        </div>
+    </div>
+    <footer class="footer">
+        <div class="container">
+            <div class="footer__wrap">
+                <a href="mailto:info@mindsync.ai" class="footer__mail">&copy; 2021 Mindsync. All rights reserved.</a>
+            </div>
+        </div>
+    </footer>
+</div>
+<div class="error-note" style="display:none" id="error">
+    <div class="error__title">Error code: 4001</div>
+    <div class="error__txt">User rejected the request.</div>
+    <button class="error__close" type="button" title="Close"
+            onClick="document.getElementsByClassName('error-note')[0].style.display='none';">
+        <img src="img/close.svg" alt="X">
+    </button>
+</div>
+</div>
+
+<!-- step-form end -->
+<script>
+    console.log = function(){
+        let s = "";
+        for (i = 0; i < arguments.length; i++) {
+            s += arguments[i] + " ";
+        }
+        document.getElementById("log").innerHTML = document.getElementById("log").innerHTML + "<br>" + s;
+    };
+
+    //styled selects
+    var x, i, j, selElmnt, a, b, c;
+    x = document.getElementsByClassName("js-styled-select");
+    for (i = 0; i < x.length; i++) {
+        selElmnt = x[i].getElementsByTagName("select")[0];
+        a = document.createElement("DIV");
+        a.setAttribute("class", "select-selected");
+        a.setAttribute("chain-id", selElmnt.options[selElmnt.selectedIndex].value)
+        a.innerHTML = selElmnt.options[selElmnt.selectedIndex].innerHTML;
+        x[i].appendChild(a);
+        b = document.createElement("DIV");
+        b.setAttribute("class", "select-items select-hide");
+        for (j = 1; j < selElmnt.length; j++) {
+            c = document.createElement("DIV");
+            c.innerHTML = selElmnt.options[j].innerHTML;
+            c.setAttribute("chain-id", selElmnt.options[j].value)
+            c.addEventListener("click", function (e) {
+                var y, i, k, s, h;
+                s = this.parentNode.parentNode.getElementsByTagName("select")[0];
+                h = this.parentNode.previousSibling;
+                for (i = 0; i < s.length; i++) {
+                    if (s.options[i].innerHTML == this.innerHTML) {
+                        s.selectedIndex = i;
+                        h.innerHTML = this.innerHTML;
+                        h.classList.add('selected')
+                        y = this.parentNode.getElementsByClassName("same-as-selected");
+                        for (k = 0; k < y.length; k++) {
+                            y[k].removeAttribute("class");
+                        }
+                        this.setAttribute("class", "same-as-selected");
+                        break;
+                    }
+                }
+                h.click();
+            });
+            b.appendChild(c);
+        }
+        x[i].appendChild(b);
+        a.addEventListener("click", function (e) {
+            e.stopPropagation();
+            closeAllSelect(this);
+
+            this.nextSibling.classList.toggle("select-hide");
+            this.classList.toggle("select-arrow-active");
+
+            let s = document.getElementsByClassName("same-as-selected");
+            if (s[0] !== undefined) {
+                let id = s[0].getAttribute("chain-id");
+                this.setAttribute("chain-id", id);
+                switch_chain(id);
+            }
+        });
+    }
+
+    function closeAllSelect(elmnt) {
+        var x, y, i, arrNo = [];
+        x = document.getElementsByClassName("select-items");
+        y = document.getElementsByClassName("select-selected");
+        for (i = 0; i < y.length; i++) {
+            if (elmnt == y[i]) {
+                arrNo.push(i)
+            } else {
+                y[i].classList.remove("select-arrow-active");
+            }
+        }
+        for (i = 0; i < x.length; i++) {
+            if (arrNo.indexOf(i)) {
+                x[i].classList.add("select-hide");
+            }
+        }
+    }
+
+    document.addEventListener("click", closeAllSelect);
+
+    (function () {
+        var block = document.getElementById("range");
+        var value = (block.value - block.min) / (block.max - block.min) * 100
+        block.style.background = 'linear-gradient(to right, #08A4E5 0%, #08A4E5 ' + value + '%, #F2F2F2 ' + value + '%, #F2F2F2 100%)'
+        document.getElementById("range_value").value = (+this.value).toFixed(2);
+    })();
+    document.getElementById("range").oninput = function () {
+        var value = (this.value - this.min) / (this.max - this.min) * 100
+        this.style.background = 'linear-gradient(to right, #08A4E5 0%, #08A4E5 ' + value + '%, #F2F2F2 ' + value + '%, #F2F2F2 100%)'
+        document.getElementById("range_value").value = (+this.value).toFixed(2);
+    };
+
+    function next(step, back = false) {
+        console.log('next', step, back);
+        if (back) {
+            document.getElementById("step" + step).classList.remove("checked");
+            document.getElementById("step" + step).classList.add('active');
+            document.getElementById("step" + (step + 1)).classList.remove('active');
+        } else if (step < 4) {
+            document.getElementById("step" + step).classList.add("checked");
+            document.getElementById("step" + step).classList.remove('active');
+            document.getElementById("step" + (step + 1)).classList.add('active');
+        }
+    }
+
+    function step(step, back) {
+
+        getAllowance(currentAccount);
+
+        if (step == 1) {
+            document.getElementById("range_value").focus();
+        }
+
+        if (step == 3 && !back) {
+            console.log('step 3 in');
+            enableStepButtons(step, false);
+            increase_allowance().then(() => {
+                enableStepButtons(step, true);
+            });
+            return;
+        }
+
+        next(step, back);
+
+        if (step == 4) {
+            enableStepButtons(step, false);
+            swap().then(() => {
+                enableStepButtons(step, true);
+            })
+        }
+
+        console.log(step);
+    }
+
+    function enableStepButtons(step, enabled) {
+        if (step > 1) {
+            document.getElementById("step" + step + "__next").innerHTML =
+                (enabled) ? ((step == 3) ? "INCREASE ALLOWANCE" : "DEPOSIT TOKENS") :
+                    "PLEASE WAIT..." + "&nbsp;".repeat(8) + " <img src='wait2.gif'>";
+        }
+        document.getElementById("step" + step + "__back").disabled = !enabled;
+        document.getElementById("step" + step + "__next").disabled = !enabled;
+    }
+
+    function setLoading(flag) {
+        document.getElementById("loading").innerHTML = flag ? "Interacting with the blockchain... Please wait <img " +
+            " src='wait2.gif'>" : "";
+        document.getElementById("steps").style.visibility = flag ? "hidden" : "visible";
+    }
+
+    function handleBalance(balance) {
+
+        r = document.getElementById('range');
+        rv = document.getElementById('range_value');
+
+        r.min = 0;
+        r.max = balance / 10 ** 18;
+        r.value = balance / 10 ** 18;
+        rv.value = balance / 10 ** 18;
+
+        r.oninput();
+    }
+
+    function handleShowBalance(balance) {
+        document.getElementById("balance").innerText = "Your MAI balance: " + (balance / 10 ** 18) + " MAI";
+    }
+
+    function handleHideError() {
+        document.getElementById("chain").style.visibility = "hidden";
+    }
+
+    function handleChainChange(chainId) {
+
+        let e = document.getElementById('chains');
+
+        for (let i = 1; i < e.length; i++) {
+            if (e.options[i].value == chainId) {
+                document.getElementsByClassName("select-selected")[0].innerText = e.options[i].innerText;
+                break;
+            }
+        }
+
+        handleHideError();
+        document.getElementById("chain").style.visibility = "hidden";
+    }
+
+    function handleAllowance(allowed_to_spend) {
+        let val = "Your allowed to spend: " + (allowed_to_spend / 10 ** 18) + " MAI";
+        document.getElementById("allowance").innerText = val
+        document.getElementById("allowance2").innerText = val;
+
+        if (allowed_to_spend > 0 && allowed_to_spend >= document.getElementById('range_value').value) next(3);
+    }
+
+    function handleStep2NextButton(v) {
+        if (v == 0) document.getElementById('increase').disabled = true; else document.getElementById('increase').disabled = false;
+    }
+
+    function handleError(title, desc) {
+        alert(title + desc);
+        document.getElementsByClassName("error__title")[0].innerText = title;
+        document.getElementsByClassName("error__txt")[0].innerText = desc;
+
+        document.getElementById("error").style.display = "";
+
+        enableStepButtons(3, true);
+        enableStepButtons(4, true);
+        step(3, true);
+        step(2, true);
+        step(1, true);
+    }
+
+    function change(v) {
+        document.getElementById('range_value').value = v;
+        document.getElementById('range').value = v;
+        document.getElementById('range').oninput();
+        handleStep2NextButton(v);
+    }
+
+    const tokenABI = [
+        {
+            "constant": false,
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "spender",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "amount",
+                    "type": "uint256"
+                }
+            ],
+            "name": "approve",
+            "outputs": [
+                {
+                    "internalType": "bool",
+                    "name": "",
+                    "type": "bool"
+                }
+            ],
+            "payable": false,
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "constant": true,
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "account",
+                    "type": "address"
+                }
+            ],
+            "name": "balanceOf",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "payable": false,
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "constant": true,
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "account",
+                    "type": "address"
+                },
+                {
+                    "internalType": "address",
+                    "name": "spender",
+                    "type": "address"
+                }
+            ],
+            "name": "allowance",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "payable": false,
+            "stateMutability": "view",
+            "type": "function"
+        }
+    ]
+    const ETHContractABI = [
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "erc20Addr",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "amount",
+                    "type": "uint256"
+                }
+            ],
+            "name": "swapETH2BSC",
+            "outputs": [
+                {
+                    "internalType": "bool",
+                    "name": "",
+                    "type": "bool"
+                }
+            ],
+            "stateMutability": "payable",
+            "type": "function"
+        }
+    ]
+    const BSCContractABI = [
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "bep20Addr",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "amount",
+                    "type": "uint256"
+                }
+            ],
+            "name": "swapBSC2ETH",
+            "outputs": [
+                {
+                    "internalType": "bool",
+                    "name": "",
+                    "type": "bool"
+                }
+            ],
+            "stateMutability": "payable",
+            "type": "function"
+        }
+    ]
+
+    window.addEventListener("load", function () {
+        app().then(() => {
+        })
+    });
+
+    // Mainnet
+    let ERC20TokenAddress = "0x75387e1287Dd85482aB66102DA9f6577E027f609"
+    let BEP20TokenAddress = "0xe985e923b6c52b420DD33549A0ebc2CdeB0AE173"
+    let ETHContractAddress = "0x7A465D909C9c08ac907C7984747341E85268954b"
+    let BSCContractAddress = "0x234c95EC97Ca4d20e9AB55563F19F2663d0D0959"
+
+    // Testnet
+    //const ERC20TokenAddress = "0x3e13482005d3e6bb5334b7bd6590d7ad5efbcc66";
+    //const BEP20TokenAddress = "0xf0e9394328F740D9B49DFcD07378511BD6bE437d";
+    //const ETHContractAddress = "0xE4bd176235054fd5773A195A30AF5E837267c2F1";
+    //const BSCContractAddress = "0x9DF3A3246170458BB8a6b8f7d37E477560E7EEA6";
+    let tokenAddress = ERC20TokenAddress;
+    let swapContractAddress = ETHContractAddress;
+    let web3 = null;
+    let provider = null;
+    let tokenContract = null;
+    let currentAccount = null;
+    let chainId = "0x1";
+
+    async function getBalance(account) {
+        balance = await tokenContract.methods.balanceOf(account).call();
+        //balance = 20 ** 18;
+        console.log("Balance: ", balance / 10 ** 18);
+        handleBalance(balance);
+        handleStep2NextButton(balance);
+        return balance;
+    }
+
+    async function getAllowance(account) {
+        allowed_to_spend = await tokenContract.methods.allowance(account, swapContractAddress).call();
+        console.log("Allowed to spend: ", allowed_to_spend / 10 ** 18);
+        handleAllowance(allowed_to_spend);
+        return allowed_to_spend;
+    }
+
+    async function approve(amount) {
+        const avgGasPrice = await web3.eth.getGasPrice();
+        console.log("Gas price:", avgGasPrice);
+
+        //const tokenDecimals = web3.utils.toBN(18);
+        const tokenAmountToApprove = web3.utils.toBN(amount);
+        const calculatedApproveValue = web3.utils.toHex(tokenAmountToApprove);//.mul(web3.utils.toBN(10).pow(tokenDecimals)));
+
+        let tx = await tokenContract.methods
+            .approve(swapContractAddress, calculatedApproveValue)
+            .send({from: currentAccount, gasLimit: 50000}, function (error, txnHash) {
+                if (error) {
+                    handleError('error: ' + error.code, error.message);
+                    throw error;
+                }
+                console.log('no error - go next step');
+                //next(3, false);
+                console.log(txnHash);
+            });
+        console.log("Approve Tx:", tx);
+
+        // Update allowance
+        await getAllowance(currentAccount);
+
+        return tx;
+    }
+
+    async function swapETHtoBSC(amount) { // , callback) {
+        swapContract = new web3.eth.Contract(ETHContractABI, ETHContractAddress);
+
+        const tokenAmountToSwap = web3.utils.toBN(amount);
+        const calculatedSwapValue = web3.utils.toHex(tokenAmountToSwap);//.mul(web3.utils.toBN(10).pow(tokenDecimals)));
+
+        tx = await swapContract.methods
+            .swapETH2BSC(ERC20TokenAddress, calculatedSwapValue)
+            .send({from: currentAccount, gasLimit: 75000}, function (error, txnHash) {
+                console.log("Transaction done")
+                if (error) {
+                    handleError('error: ' + error.code, error.message);
+                    console.log("Transaction complete with error")
+                    throw error;
+                } else {
+                    console.log("Swap transaction complete:", txnHash);
+
+                    // TODO: call callback to alert user
+                    // callback(txnHash);
+                }
+            });
+        console.log("Swap Tx:", tx)
+
+        //Update allowance
+        await getAllowance(currentAccount);
+
+        step(3, true);
+        step(2, true);
+        step(1, true);
+
+        alert("Swap transaction completed. Please wait for MAI on the Binance Smart Chain.\n\nIt can take up to 30 minutes to arrive.");
+
+        setLoading(true);
+
+        // Update balance
+        balance = await getBalance(currentAccount);
+        handleShowBalance(balance);
+
+        setLoading(false);
+
+        return tx
+    }
+
+    async function swapBSCtoETH(amount) { // , callback) {
+        swapContract = new web3.eth.Contract(BSCContractABI, BSCContractAddress);
+
+        const tokenAmountToSwap = web3.utils.toBN(amount);
+        const calculatedSwapValue = web3.utils.toHex(tokenAmountToSwap);//.mul(web3.utils.toBN(10).pow(tokenDecimals)));
+
+        tx = await swapContract.methods
+            .swapBSC2ETH(BEP20TokenAddress, calculatedSwapValue)
+            .send({from: currentAccount, gasLimit: 100000}, function (error, txnHash) {
+                console.log("Transaction done")
+                if (error) {
+                    handleError('error: ' + error.code, error.message);
+                    console.log("Transaction complete with error");
+                    throw error;
+                } else {
+                    console.log("Swap transaction complete:", txnHash);
+
+                    // TODO: call callback to alert user
+                    // callback(txnHash);
+                }
+            });
+        console.log("Swap Tx:", tx)
+
+        //Update allowance
+        await getAllowance(currentAccount);
+
+        step(3, true);
+        step(2, true);
+        step(1, true);
+
+        alert("Swap transaction completed. Please wait for MAI on the Ethereum wallet.\n\nIt can take up to 30 minutes to arrive.");
+
+        document.getElementById("steps").style.visibility = "hidden";
+
+        // Update balance
+        balance = await getBalance(currentAccount);
+        handleShowBalance(balance);
+        document.getElementById("steps").style.visibility = "visible";
+
+        return tx
+    }
+
+    // TODO: call on chain selector change
+    async function switch_chain(chainId) {
+        try {
+            await ethereum.request({
+                method: 'wallet_switchEthereumChain',
+                params: [{chainId: chainId}],
+            });
+            handleHideError();
+            return true
+        } catch (switchError) {
+            handleError('error: ' + switchError.code, switchError.message);
+            console.log(switchError);
+            return false
+        }
+    }
+
+    function get_swap_amount() {
+        // TODO: return selected swap amount from controls
+        let amount = document.getElementById('range_value').value; // must to be changed to value retrieval from edit control
+        // TODO: check amount value (must be float)
+        return web3.utils.toWei(amount.toString(), 'ether') // note that MAI have 18 digits. Mul amount on 10**18
+    }
+
+    async function increase_allowance() {
+        // Check allowed to spend by ERCSmartContract MAI amount
+        allowed_to_spend = await getAllowance(currentAccount);
+        amount_to_swap = get_swap_amount();// balance
+        console.log("allowed to spend:", allowed_to_spend);
+        console.log("amount to swap:", amount_to_swap);
+
+        let diff = amount_to_swap - allowed_to_spend
+        if (diff > 0) {
+            // To allow SwapContract to transfer user's MAI to itself,
+            // user need to call "approve" method of MAI token smart contract of appropriate network
+            await approve(amount_to_swap)
+
+            // We need to set wait approve transaction loop (enough allowence) here
+            // Check approve transaction result here (allowance)
+            next(3, false);
+
+        } else {
+            // Transfer of desired amount is already allowed
+            next(3, false);
+        }
+    }
+
+    async function swap() {
+        let allowed_to_spend = await getAllowance(currentAccount);
+        let amount_to_swap = get_swap_amount();
+        let diff = amount_to_swap - allowed_to_spend
+        if (diff > 0) {
+            console.log("Error: step 3 missed. Amount to swap is not allowed to spend.")
+            return false
+        }
+
+        if ((chainId == "0x1") || (chainId == "0x4")) {
+            // Swap from Ethereum to BSC
+            tx = await swapETHtoBSC(amount_to_swap) // * 10**18
+        } else {
+            // Swap from BSC to Ethereum
+            tx = await swapBSCtoETH(amount_to_swap) // * 10**18
+        }
+
+        // TODO: output transaction ID (tx) to user interface with the link to appropriate blockchain explorer
+        // TODO: create button "SHOW TRANSACTION" - link to blockchain explorer + tx like https://etherscan.io/tx/...
+
+        return true
+    }
+
+    async function app() {
+
+        // this returns the provider, or null if it wasn't detected
+        provider = await detectEthereumProvider()
+
+        if (provider) {
+            startApp(provider); // Initialize your app
+        } else {
+            console.log('Please install MetaMask!');
+        }
+
+        function startApp(provider) {
+            // If the provider returned by detectEthereumProvider is not the same as
+            // window.ethereum, something is overwriting it, perhaps another wallet.
+            if (provider !== window.ethereum) {
+                console.error('Do you have multiple wallets installed?');
+            }
+            // Access the decentralized web!
+        }
+
+        /**********************************************************/
+        /* Handle chain (network) and chainChanged (per EIP-1193) */
+        /**********************************************************/
+        chainId = await ethereum.request({method: 'eth_chainId'});
+
+        // TODO: setup_swap_direction_selector(chainId)
+        handleChainChange(chainId);
+
+        console.log("Chain ID is", chainId)
+        if (chainId == "0x1") {
+            network = "Ethereum (ERC20)"
+            tokenAddress = ERC20TokenAddress
+            swapContractAddress = ETHContractAddress
+        } else if (chainId == "0x4") {
+            network = "Rinkeby Ethereum TESTNET"
+            ERC20TokenAddress = "0x3e13482005d3e6bb5334b7bd6590d7ad5efbcc66";
+            ETHContractAddress = "0xE4bd176235054fd5773A195A30AF5E837267c2F1";
+            tokenAddress = ERC20TokenAddress
+            swapContractAddress = ETHContractAddress
+        } else if (chainId == "0x38") {
+            network = "Binance Smart Chain (BSC)"
+            tokenAddress = BEP20TokenAddress
+            swapContractAddress = BSCContractAddress
+        } else if (chainId == "0x61") {
+            network = "Binance Smart Chain (BSC) TESTNET"
+            BEP20TokenAddress = "0xf0e9394328F740D9B49DFcD07378511BD6bE437d";
+            BSCContractAddress = "0x9DF3A3246170458BB8a6b8f7d37E477560E7EEA6";
+            tokenAddress = BEP20TokenAddress
+            swapContractAddress = BSCContractAddress
+        } else {
+            network = chainId
+        }
+
+        // Initialize web3 and Token contract
+        web3 = new Web3(provider);
+        tokenContract = new web3.eth.Contract(tokenABI, tokenAddress);
+
+        ethereum.on('chainChanged', () => handleChainChanged());
+
+        function handleChainChanged(_chainId) {
+            // We recommend reloading the page, unless you must do otherwise
+            console.log("network changed", _chainId)
+            window.location.reload();
+        }
+
+        /***********************************************************/
+        /* Handle user accounts and accountsChanged (per EIP-1193) */
+        /***********************************************************/
+
+        ethereum
+            .request({method: 'eth_accounts'})
+            .then((accounts) => handleAccountsChanged(accounts))
+            .catch((err) => {
+                // Some unexpected error.
+                // For backwards compatibility reasons, if no accounts are available,
+                // eth_accounts will return an empty array.
+                handleError('error', err);
+                console.error(err);
+            });
+
+        // Note that this event is emitted on page load.
+        // If the array of accounts is non-empty, you're already
+        // connected.
+        ethereum.on('accountsChanged', (accounts) => handleAccountsChanged(accounts));
+
+        // For now, 'eth_accounts' will continue to always return an array
+        // ###################
+        async function handleAccountsChanged(accounts) {
+            if (accounts.length === 0) {
+                // MetaMask is locked or the user has not connected any accounts
+                console.log('Please connect to MetaMask.');
+            } else if (accounts[0] !== currentAccount) {
+                currentAccount = accounts[0];
+
+                // Account connected
+                console.log("Account connected:", currentAccount);
+                setLoading(true);
+
+                // Get MAI balance
+                balance = await getBalance(currentAccount);
+
+                handleShowBalance(balance);
+                setLoading(false);
+
+                document.getElementById("steps").style.visibility = "visible";
+            }
+        }
+
+        /*********************************************/
+        /* Access the user's accounts (per EIP-1102) */
+        /*********************************************/
+
+        // You should only attempt to request the user's accounts in response to user
+        // interaction, such as a button click.
+        // Otherwise, you popup-spam the user like it's 1999.
+        // If you fail to retrieve the user's account(s), you should encourage the user
+        // to initiate the attempt.
+        //document.getElementById('connectButton', connect);
+
+        // While you are awaiting the call to eth_requestAccounts, you should disable
+        // any buttons the user can click to initiate the request.
+        // MetaMask will reject any additional requests while the first is still
+        // pending.
+        function connect() {
+            ethereum
+                .request({method: 'eth_requestAccounts'})
+                .then(handleAccountsChanged)
+                .catch((err) => {
+                    if (err.code === 4001) {
+                        // EIP-1193 userRejectedRequest error
+                        // If this happens, the user rejected the connection request.
+                        console.log('Please connect to MetaMask.');
+                    } else {
+                        console.error(err);
+                    }
+                });
+        }
+
+        connect()
+
+    }
+
+</script>
+
+</body>
+
+</html>
