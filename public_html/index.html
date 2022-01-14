@@ -43,8 +43,9 @@
     <link rel="preload" href="fonts/sf-ui-display-light.woff2" as="font" crossorigin="anonymous"/>
     <link rel="preload" href="fonts/sf-ui-display-medium.woff2" as="font" crossorigin="anonymous"/>
     <link rel="stylesheet" type="text/css" href="css/style.min.css"/>
-    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js" defer></script>
-    <script src="https://unpkg.com/@metamask/detect-provider/dist/detect-provider.min.js" defer></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!-- <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js" defer></script> -->
+    <!-- <script src="https://unpkg.com/@metamask/detect-provider/dist/detect-provider.min.js" defer></script> -->
 </head>
 
 <body>
@@ -54,6 +55,14 @@
             <div class="header__wrap">
                 <div class="header__logo">
                     <img src="img/logo.png" alt="Mindsync">
+                </div>
+                <div class="header__connect">
+                    <button class="btn btn-primary" id="btn-connect">
+                        Connect wallet
+                    </button>
+                    <button class="btn btn-primary" id="btn-disconnect" style="display: none;">
+                        Disconnect wallet
+                    </button>
                 </div>
             </div>
         </div>
@@ -72,7 +81,7 @@
                     Binance Smart Chain (BEP20) standard.</p>
 
                 <h2 class="steps-form__title">Swap your MAI tokens between blockchains</h2>
-                <p class="step__desc" id="loading">Interacting with the blockchain... Please wait <img
+                <p class="step__desc" id="loading">Please connect wallet... <img
                         src='wait2.gif'></p><br>
                 <div id="steps" style="visibility: hidden;">
                     <fieldset id="step1" class="step active">
@@ -198,6 +207,11 @@
     </button>
 </div>
 </div>
+
+<script type="text/javascript" src="https://unpkg.com/web3@1.2.11/dist/web3.min.js"></script>
+<script type="text/javascript" src="https://unpkg.com/web3modal@1.9.4/dist/index.js"></script>
+<script type="text/javascript" src="https://unpkg.com/evm-chains@0.2.0/dist/umd/index.min.js"></script>
+<script type="text/javascript" src="https://unpkg.com/@walletconnect/web3-provider@1.2.1/dist/umd/index.min.js"></script>
 
 <!-- step-form end -->
 <script>
@@ -550,9 +564,14 @@
         }
     ]
 
-    window.addEventListener("load", function () {
-        app().then(() => {
-        })
+    window.addEventListener("load", async function () {
+        init();
+        document.querySelector("#btn-connect").addEventListener("click", onConnect);
+        document.querySelector("#btn-disconnect").addEventListener("click", onDisconnect);
+        if (web3Modal.cachedProvider) {
+            provider = await web3Modal.connect();
+            await refreshAccountData();
+        }
     });
 
     // Mainnet
@@ -566,6 +585,15 @@
     //const BEP20TokenAddress = "0xf0e9394328F740D9B49DFcD07378511BD6bE437d";
     //const ETHContractAddress = "0xE4bd176235054fd5773A195A30AF5E837267c2F1";
     //const BSCContractAddress = "0x9DF3A3246170458BB8a6b8f7d37E477560E7EEA6";
+
+    // Unpkg imports
+    const Web3Modal = window.Web3Modal.default;
+    const WalletConnectProvider = window.WalletConnectProvider.default;
+    const evmChains = window.evmChains;
+
+    // Web3modal instance
+    let web3Modal = null;
+
     let tokenAddress = ERC20TokenAddress;
     let swapContractAddress = ETHContractAddress;
     let web3 = null;
@@ -703,19 +731,33 @@
     }
 
     // TODO: call on chain selector change
-    async function switch_chain(chainId) {
-        try {
-            await ethereum.request({
-                method: 'wallet_switchEthereumChain',
-                params: [{chainId: chainId}],
-            });
-            handleHideError();
-            return true
-        } catch (switchError) {
-            handleError('error: ' + switchError.code, switchError.message);
-            console.log(switchError);
-            return false
+    async function switch_chain(chain_id) {
+        if (parseInt(chain_id) === chainId) {
+            return;
         }
+
+        await provider.close();
+        // await web3Modal.clearCachedProvider();
+        const providerOptions = {
+            walletconnect: {
+                package: WalletConnectProvider,
+                options: {
+                    infuraId: "5bf584270fd54c27804e0fc24032b2b5",
+                    rpc: {
+                        56: 'https://bsc-dataseed.binance.org/',
+                        1: 'https://mainnet.infura.io/v3/',
+                    },
+                }
+            }
+        };
+        web3Modal = new Web3Modal({
+            network: chain_id === "0x1" ? "mainnet" : "binance",
+            cacheProvider: true,
+            providerOptions,
+            disableInjectedProvider: false,
+        });
+        provider = await web3Modal.connect();
+        fetchAccountData();
     }
 
     function get_swap_amount() {
@@ -771,32 +813,122 @@
         return true
     }
 
-    async function app() {
-
-        // this returns the provider, or null if it wasn't detected
-        provider = await detectEthereumProvider()
-
-        if (provider) {
-            startApp(provider); // Initialize your app
-        } else {
-            console.log('Please install MetaMask!');
-        }
-
-        function startApp(provider) {
-            // If the provider returned by detectEthereumProvider is not the same as
-            // window.ethereum, something is overwriting it, perhaps another wallet.
-            if (provider !== window.ethereum) {
-                console.error('Do you have multiple wallets installed?');
+    function init() {
+        const providerOptions = {
+            walletconnect: {
+                package: WalletConnectProvider,
+                options: {
+                    infuraId: "5bf584270fd54c27804e0fc24032b2b5",
+                    rpc: {
+                        56: 'https://bsc-dataseed.binance.org/',
+                        1: 'https://mainnet.infura.io/v3/',
+                    },
+                }
             }
-            // Access the decentralized web!
+        };
+
+        web3Modal = new Web3Modal({
+            cacheProvider: true,
+            providerOptions,
+            disableInjectedProvider: false,
+        });
+    }
+
+    /**
+     * Connect wallet button pressed.
+     */
+    async function onConnect() {
+        try {
+            provider = await web3Modal.connect();
+        } catch(e) {
+            console.log("Could not get a wallet connection", e);
+            return;
         }
 
-        /**********************************************************/
-        /* Handle chain (network) and chainChanged (per EIP-1193) */
-        /**********************************************************/
-        chainId = await ethereum.request({method: 'eth_chainId'});
+        // Subscribe to accounts change
+        provider.on("accountsChanged", (accounts) => {
+            console.log('accountsChanged....');
+            fetchAccountData();
+        });
 
-        // TODO: setup_swap_direction_selector(chainId)
+        // Subscribe to chainId change
+        provider.on("chainChanged", (chainId) => {
+            console.log('chainChained...');
+            fetchAccountData();
+        });
+
+        await refreshAccountData();
+    }
+
+    /**
+     * Disconnect wallet button pressed.
+     */
+    async function onDisconnect() {
+        console.log("Killing the wallet connection", provider);
+
+        // TODO: Which providers have close method?
+        if(provider.close) {
+            await provider.close();
+            await web3Modal.clearCachedProvider();
+            provider = null;
+        }
+
+        currentAccount = null;
+
+        // Set the UI back to the initial state
+        document.querySelector("#btn-connect").style.display = "block";
+        document.querySelector("#btn-disconnect").style.display = "none";
+        setLoading(true);
+    }
+
+    /**
+     * Fetch account data for UI when
+     * - User switches accounts in wallet
+     * - User switches networks in wallet
+     * - User connects wallet initially
+     */
+    async function refreshAccountData() {
+        // If any current data is displayed when
+        // the user is switching acounts in the wallet immediate hide this data
+        document.querySelector("#btn-connect").style.display = "none";
+        document.querySelector("#btn-disconnect").style.display = "block";
+
+        // Disable button while UI is loading.
+        // fetchAccountData() will take a while as it communicates
+        // with Ethereum node via JSON-RPC and loads chain data over an API call.
+        document.querySelector("#btn-connect").setAttribute("disabled", "disabled")
+        await fetchAccountData(provider);
+        document.querySelector("#btn-connect").removeAttribute("disabled")
+    }
+
+    async function handleAccountsChanged(accounts) {
+        if (accounts.length === 0) {
+            // MetaMask is locked or the user has not connected any accounts
+            console.log('Please connect to MetaMask.');
+            return;
+        }
+        currentAccount = accounts[0];
+
+        // Account connected
+        console.log("Account connected:", currentAccount);
+        setLoading(true);
+
+        // Get MAI balance
+        balance = await getBalance(currentAccount);
+
+        handleShowBalance(balance);
+        setLoading(false);
+
+        document.getElementById("steps").style.visibility = "visible";
+    }
+
+    /**
+     * Kick in the UI action after Web3modal dialog has chosen a provider
+     */
+    async function fetchAccountData() {
+        web3 = new Web3(provider);
+        chainId = await web3.eth.getChainId();
+
         handleChainChange(chainId);
 
         console.log("Chain ID is", chainId)
@@ -824,95 +956,14 @@
             network = chainId
         }
 
-        // Initialize web3 and Token contract
-        web3 = new Web3(provider);
         tokenContract = new web3.eth.Contract(tokenABI, tokenAddress);
 
-        ethereum.on('chainChanged', () => handleChainChanged());
+        const accounts = await web3.eth.getAccounts();
+        handleAccountsChanged(accounts);
 
-        function handleChainChanged(_chainId) {
-            // We recommend reloading the page, unless you must do otherwise
-            console.log("network changed", _chainId)
-            window.location.reload();
-        }
-
-        /***********************************************************/
-        /* Handle user accounts and accountsChanged (per EIP-1193) */
-        /***********************************************************/
-
-        ethereum
-            .request({method: 'eth_accounts'})
-            .then((accounts) => handleAccountsChanged(accounts))
-            .catch((err) => {
-                // Some unexpected error.
-                // For backwards compatibility reasons, if no accounts are available,
-                // eth_accounts will return an empty array.
-                handleError('error', err);
-                console.error(err);
-            });
-
-        // Note that this event is emitted on page load.
-        // If the array of accounts is non-empty, you're already
-        // connected.
-        ethereum.on('accountsChanged', (accounts) => handleAccountsChanged(accounts));
-
-        // For now, 'eth_accounts' will continue to always return an array
-        // ###################
-        async function handleAccountsChanged(accounts) {
-            if (accounts.length === 0) {
-                // MetaMask is locked or the user has not connected any accounts
-                console.log('Please connect to MetaMask.');
-            } else if (accounts[0] !== currentAccount) {
-                currentAccount = accounts[0];
-
-                // Account connected
-                console.log("Account connected:", currentAccount);
-                setLoading(true);
-
-                // Get MAI balance
-                balance = await getBalance(currentAccount);
-
-                handleShowBalance(balance);
-                setLoading(false);
-
-                document.getElementById("steps").style.visibility = "visible";
-            }
-        }
-
-        /*********************************************/
-        /* Access the user's accounts (per EIP-1102) */
-        /*********************************************/
-
-        // You should only attempt to request the user's accounts in response to user
-        // interaction, such as a button click.
-        // Otherwise, you popup-spam the user like it's 1999.
-        // If you fail to retrieve the user's account(s), you should encourage the user
-        // to initiate the attempt.
-        //document.getElementById('connectButton', connect);
-
-        // While you are awaiting the call to eth_requestAccounts, you should disable
-        // any buttons the user can click to initiate the request.
-        // MetaMask will reject any additional requests while the first is still
-        // pending.
-        function connect() {
-            ethereum
-                .request({method: 'eth_requestAccounts'})
-                .then(handleAccountsChanged)
-                .catch((err) => {
-                    if (err.code === 4001) {
-                        // EIP-1193 userRejectedRequest error
-                        // If this happens, the user rejected the connection request.
-                        console.log('Please connect to MetaMask.');
-                    } else {
-                        console.error(err);
-                    }
-                });
-        }
-
-        connect()
-
+        document.querySelector("#btn-connect").style.display = "none";
+        document.querySelector("#btn-disconnect").style.display = "block";
     }
-
 </script>
 
 </body>
