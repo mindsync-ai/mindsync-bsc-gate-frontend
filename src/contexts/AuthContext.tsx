@@ -42,8 +42,7 @@ export const AuthProvider = ({ children }) => {
 
   const subscribeProvider = (provider) => {
     provider.on("disconnect", (error) => {
-      setChainId(null);
-      setAddress(null);
+      console.log('disconnect event');
     });
     provider.on("accountsChanged", (accounts) => {
       setAddress(accounts[0]);
@@ -76,7 +75,6 @@ export const AuthProvider = ({ children }) => {
       }
       const provider = await web3Modal.connect();
       subscribeProvider(provider);
-      await provider.enable();
       web3 = new Web3(provider);
       setWeb3(web3);
 
@@ -100,9 +98,18 @@ export const AuthProvider = ({ children }) => {
       await web3.currentProvider.close();
     }
     web3Modal.clearCachedProvider();
+    setChainId(null);
+    setAddress(null);
   };
 
   const switchChain = async (chainId) => {
+    if (!web3) {
+      showSnackbar({
+        severity: "error",
+        message: "Please connect your wallet.",
+      });
+      return false;
+    }
     if (chainId !== 1 && chainId !== 56) {
       showSnackbar({
         severity: "error",
@@ -119,6 +126,11 @@ export const AuthProvider = ({ children }) => {
           method: "wallet_switchEthereumChain",
           params: [{ chainId: `0x${chainId.toString(16)}` }],
         });
+        const accounts = await web3.eth.getAccounts();
+        const chain = await web3.eth.getChainId();
+        setAddress(accounts[0]);
+        setChainId(chain);
+        console.log('chain--------', accounts[0], chain);
         showSnackbar({
           severity: "info",
           message: "Network Changed",
@@ -145,7 +157,6 @@ export const AuthProvider = ({ children }) => {
         });
         const provider = await web3Modal.connect();
         subscribeProvider(provider);
-        await provider.enable();
         const switchedWeb3 = new Web3(provider);
         setWeb3(switchedWeb3);
 
@@ -153,10 +164,14 @@ export const AuthProvider = ({ children }) => {
         const chain = await switchedWeb3.eth.getChainId();
         setAddress(accounts[0]);
         setChainId(chain);
+        showSnackbar({
+          severity: "info",
+          message: "Network Changed",
+        });
         result = true;
       } catch (err) {
         web3Modal.clearCachedProvider();
-        console.error(err);
+        console.error('AuthContextError:', err);
         showSnackbar({
           severity: "error",
           message: "Failed to switch network",

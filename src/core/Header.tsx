@@ -11,7 +11,6 @@ import Logo from "../assets/logo.png";
 import { minimizeAddress } from "../helper/utils";
 import useAuth from "../hooks/useAuth";
 
-
 export const Header = () => {
   const { address, loading, connect, disconnect } = useAuth();
   const [anchorEl, setAnchorEl] = useState(null);
@@ -33,7 +32,7 @@ export const Header = () => {
 
   return (
     <AppBar position="fixed">
-      <Container maxWidth="xl">
+      <Container maxWidth="md">
         <Grid
           container
           justifyContent="space-between"
@@ -42,10 +41,7 @@ export const Header = () => {
         >
           <Grid item>
             <Grid container alignItems="center">
-              <img src={Logo} width={61} alt="Open Oasis" />
-              <Typography component="span" variant="h4" ml={3} color="white">
-                Mindsync
-              </Typography>
+              <img src={Logo} width={200} alt="Open Oasis" />
             </Grid>
           </Grid>
 
@@ -72,9 +68,9 @@ export const Header = () => {
               </Grid>
             ) : (
               <Button
-                color="primary"
-                style={{ color: "white" }}
                 disabled={loading}
+                variant="outlined"
+                color="secondary"
                 onClick={connect}
               >
                 Connect

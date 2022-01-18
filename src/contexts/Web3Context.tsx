@@ -57,7 +57,7 @@ export const Web3Provider = ({ children }: PropsWithChildren<any>) => {
     const instance = new Web3(
       parseInt(chainId) === 1 ? config.ETH_Network_RPC : config.BSC_Network_RPC
     );
-    instance.eth.setProvider(Web3.givenProvider);
+    // instance.eth.setProvider(Web3.givenProvider);
     setWeb3(instance);
 
     const tokenContract = new instance.eth.Contract(

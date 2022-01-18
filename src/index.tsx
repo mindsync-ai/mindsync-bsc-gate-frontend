@@ -9,19 +9,22 @@ import reportWebVitals from "./reportWebVitals";
 import { Web3Provider } from "./contexts/Web3Context";
 import { AuthProvider } from "./contexts/AuthContext";
 import { SnackbarProvider } from "./contexts/Snackbar";
+import ThemeProvider from "./theme";
 
 ReactDOM.render(
   <React.StrictMode>
     <CssBaseline />
-    <SnackbarProvider>
-      <Router>
-        <AuthProvider>
-          <Web3Provider>
-            <App />
-          </Web3Provider>
-        </AuthProvider>
-      </Router>
-    </SnackbarProvider>
+    <ThemeProvider>
+      <SnackbarProvider>
+        <Router>
+          <AuthProvider>
+            <Web3Provider>
+              <App />
+            </Web3Provider>
+          </AuthProvider>
+        </Router>
+      </SnackbarProvider>
+    </ThemeProvider>
   </React.StrictMode>,
   document.getElementById("root")
 );
