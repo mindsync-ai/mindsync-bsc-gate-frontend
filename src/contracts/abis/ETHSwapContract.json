@@ -1,0 +1,26 @@
+[
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "erc20Addr",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "swapETH2BSC",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "payable",
+        "type": "function"
+    }
+]
