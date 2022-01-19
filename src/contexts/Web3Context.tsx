@@ -33,10 +33,10 @@ export const Web3Context = createContext<Web3ContextValue>({
 });
 
 export const Web3Provider = ({ children }: PropsWithChildren<any>) => {
-  const { chainId } = useAuth();
+  const { web3, chainId } = useAuth();
   const { showSnackbar } = useSnackbar();
   const [wrongNetwork, setWrongNetwork] = useState(false);
-  const [web3, setWeb3] = useState<Web3>();
+//   const [web3, setWeb3] = useState<Web3>();
 
   const [contracts, setContracts] = useState<Contracts>({});
 
@@ -57,22 +57,22 @@ export const Web3Provider = ({ children }: PropsWithChildren<any>) => {
     const instance = new Web3(
       parseInt(chainId) === 1 ? config.ETH_Network_RPC : config.BSC_Network_RPC
     );
-    // instance.eth.setProvider(Web3.givenProvider);
-    setWeb3(instance);
+    instance.eth.setProvider(web3.currentProvider);
+    // setWeb3(instance);
 
-    const tokenContract = new instance.eth.Contract(
+    const tokenContract = new web3.eth.Contract(
       tokenABI as any,
       parseInt(chainId) === 1
         ? config.ERC20ContractAddress
         : config.BEP20ContractAddress
     );
 
-    const ethSwapContract = new instance.eth.Contract(
+    const ethSwapContract = new web3.eth.Contract(
       ethSwapABI as any,
       config.ETHSwapContractAddress
     );
 
-    const bscSwapContract = new instance.eth.Contract(
+    const bscSwapContract = new web3.eth.Contract(
       bscSwapABI as any,
       config.BSCSwapContractAddress
     );

@@ -11,262 +11,16 @@ import {
   StepLabel,
   StepContent,
   Paper,
-  Select,
-  MenuItem,
-  Slider,
-  Link,
 } from "@mui/material";
 
 import { AuthContext } from "../contexts/AuthContext";
 import { useContracts } from "../contexts/Web3Context";
 import { useSnackbar } from "../contexts/Snackbar";
 import { config } from "../config";
-
-function Step1({ handleNext, user, setUser, switchChain, showSnackbar }) {
-  const handleChange = async (event) => {
-    const chainId = parseInt(event.target.value);
-    const switchSuccess = await switchChain(chainId);
-    if (switchSuccess) {
-      setUser((prevUser) => ({
-        ...prevUser,
-        chainId,
-      }));
-    }
-  };
-
-  const checkConnect = () => {
-    if (!user.address) {
-      showSnackbar({
-        severity: "error",
-        message: "Please connect your wallet.",
-      });
-      return;
-    }
-    handleNext();
-  }
-
-  return (
-    <>
-      <Typography fontSize={18} mb={2}>
-        For example, to swap Ethereum (ERC20) MAI tokens for BSC (BEP20) MAI
-        tokens, you should select "Ethereum → BSC" option in the selection field
-        or just select network in your wallet.
-      </Typography>
-      <Select
-        value={user.chainId}
-        onChange={handleChange}
-        displayEmpty
-        sx={{ minWidth: 300 }}
-      >
-        <MenuItem value={1}>Ethereum → BSC</MenuItem>
-        <MenuItem value={56}>BSC → Ethereum</MenuItem>
-      </Select>
-      <Box sx={{ mb: 2 }}>
-        <div>
-          <Button
-            variant="contained"
-            onClick={checkConnect}
-            sx={{ mt: 1, mr: 1 }}
-          >
-            Next
-          </Button>
-        </div>
-      </Box>
-      <Typography fontSize={18}>
-        To be able to use MetaMask with Binance Smart Chain you should configure
-        it first.
-      </Typography>
-      <Typography fontSize={18}>
-        Please{" "}
-        <Link
-          href="https://docs.binance.org/smart-chain/wallet/metamask.html"
-          underline="none"
-        >
-          read this article
-        </Link>{" "}
-        on how to use MetaMask with Binance Smart Chain.
-      </Typography>
-      <Typography fontSize={18}>
-        Please make sure you are using the following settings:
-      </Typography>
-      <ul>
-        <li>ChainID: 0x38, 56 in decimal (if 56 doesn’t work, try 0x38)</li>
-        <li>Symbol: BNB</li>
-        <li>Block Explorer: https://bscscan.com</li>
-      </ul>
-      <Typography fontSize={18}>
-        If you use another wallet, such as Trust Wallet, see{" "}
-        <Link
-          href="https://docs.binance.org/wallets/bsc-wallets.html"
-          underline="none"
-        >
-          BSC wallet support
-        </Link>{" "}
-        page.
-      </Typography>
-    </>
-  );
-}
-
-function Step2({ handleNext, handleBack, balance, swapAmount, setSwapAmount }) {
-  const marks = [
-    {
-      value: 0,
-      label: "0",
-    },
-    {
-      value: balance,
-      label: `${balance} MAI`,
-    },
-  ];
-
-  const valuetext = (value: number) => {
-    return `${value} MAI`;
-  };
-
-  const handleSliderChange = (event: Event, newValue: number | number[]) => {
-    setSwapAmount(newValue);
-  };
-
-  return (
-    <>
-      <Typography fontSize={18}>Your MAI balance: {balance} MAI</Typography>
-      <Typography fontSize={18}>
-        Enter the desired swap amount and click "Next".
-      </Typography>
-      <Box sx={{ width: 300 }} key={1} mt={4}>
-        <Slider
-          value={typeof swapAmount === "number" ? swapAmount : 0}
-          getAriaValueText={valuetext}
-          step={1}
-          min={0}
-          max={balance}
-          marks={marks}
-          valueLabelDisplay="on"
-          onChange={handleSliderChange}
-        />
-      </Box>
-      <Box sx={{ mb: 2 }} key={2}>
-        <div>
-          <Button
-            variant="contained"
-            onClick={handleNext}
-            sx={{ mt: 1, mr: 1 }}
-          >
-            Next
-          </Button>
-          <Button
-            variant="outlined"
-            color="secondary"
-            onClick={handleBack}
-            sx={{ mt: 1, mr: 1 }}
-          >
-            Back
-          </Button>
-        </div>
-      </Box>
-    </>
-  );
-}
-
-function Step3({
-  handleNext,
-  handleBack,
-  swapAmount,
-  allowanceAmount,
-  approve,
-}) {
-  const increaseAllowance = async () => {
-    console.log("allowed to spend:", allowanceAmount);
-    const diff = swapAmount - allowanceAmount;
-    if (diff > 0) {
-      const result = await approve(swapAmount);
-      if (!result) {
-        return;
-      }
-    }
-    handleNext();
-  };
-
-  return (
-    <>
-      <Typography fontSize={18} mb={2}>
-        Your allowed to spend:{" "}
-        {Web3.utils.fromWei(`${allowanceAmount}`, "ether")} MAI
-      </Typography>
-      <Typography fontSize={18}>
-        Before initializing the swap, you should increase allowance so that your
-        funds can be transferred by the swap contract.
-      </Typography>
-      <Typography fontSize={18}>
-        The app will calculate the corresponding allowance value and either ask
-        you to submit the transaction or skip this step.
-      </Typography>
-      <Typography fontSize={18}>Click "Increase allowance" button.</Typography>
-      <Box sx={{ mb: 2, mt: 2 }}>
-        <div>
-          <Button
-            variant="contained"
-            onClick={increaseAllowance}
-            sx={{ mt: 1, mr: 1 }}
-          >
-            Increase Allowance
-          </Button>
-          <Button onClick={handleBack} sx={{ mt: 1, mr: 1 }}>
-            Back
-          </Button>
-        </div>
-      </Box>
-    </>
-  );
-}
-
-function Step4({
-  handleNext,
-  handleBack,
-  user,
-  swapAmount,
-  allowanceAmount,
-  swapETHtoBSC,
-  swapBSCtoETH,
-  showSnackbar,
-}) {
-  const swap = async () => {
-    const diff = swapAmount - allowanceAmount;
-    if (diff > 0) {
-      showSnackbar({
-        severity: "error",
-        message: "Step 3 missed. Amount to swap is not allowed to spend.",
-      });
-      return;
-    }
-
-    let tx;
-    if (parseInt(user.chainId) === 1) {
-      tx = await swapETHtoBSC(swapAmount);
-    } else {
-      tx = await swapBSCtoETH(swapAmount);
-    }
-    console.log("Swap tx:", tx);
-    handleNext();
-  };
-
-  return (
-    <>
-      <Typography>This is step4</Typography>
-      <Box sx={{ mb: 2 }}>
-        <div>
-          <Button variant="contained" onClick={swap} sx={{ mt: 1, mr: 1 }}>
-            Swap Token
-          </Button>
-          <Button onClick={handleBack} sx={{ mt: 1, mr: 1 }}>
-            Back
-          </Button>
-        </div>
-      </Box>
-    </>
-  );
-}
+import Step1 from "./steps/Step1";
+import Step2 from "./steps/Step2";
+import Step3 from "./steps/Step3";
+import Step4 from "./steps/Step4";
 
 export default function Home() {
   const { address, chainId, switchChain } = useContext(AuthContext);
@@ -446,7 +200,7 @@ export default function Home() {
     const calculatedSwapValue = Web3.utils.toHex(tokenAmountToSwap);
 
     const tx = await bscSwapContract.methods
-      .swapETH2BSC(config.BEP20ContractAddress, calculatedSwapValue)
+      .swapBSC2ETH(config.BEP20ContractAddress, calculatedSwapValue)
       .send({ from: address, gasLimit: 100000 }, (error, txnHash) => {
         if (error) {
           showSnackbar({
@@ -555,8 +309,13 @@ export default function Home() {
                 <Typography>
                   All steps completed - you&apos;re finished
                 </Typography>
-                <Button onClick={handleReset} sx={{ mt: 1, mr: 1 }}>
-                  Reset
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={handleReset}
+                  sx={{ mt: 1, mr: 1 }}
+                >
+                  Swap again
                 </Button>
               </Paper>
             )}

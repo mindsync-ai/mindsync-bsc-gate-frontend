@@ -3,7 +3,7 @@ import { lazy, Suspense } from "react";
 import { Switch } from "react-router";
 import { Route } from "react-router-dom";
 import Loading from "./components/Loading";
-import { Header } from "./core/Header";
+import { Header } from "./views/Header";
 
 
 const Home = lazy(() => import("./views/Home"));

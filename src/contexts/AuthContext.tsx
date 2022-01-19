@@ -192,7 +192,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ address, chainId, loading, connect, disconnect, switchChain }}
+      value={{ web3, address, chainId, loading, connect, disconnect, switchChain }}
     >
       {children}
     </AuthContext.Provider>
