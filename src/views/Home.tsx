@@ -69,13 +69,7 @@ export default function Home() {
       setUser({ address: "", chainId: 56 });
       return;
     }
-    if (wrongNetwork) {
-      showSnackbar({
-        severity: "error",
-        message: "Please switch to Ethereum or BSC Network",
-      });
-      return;
-    }
+    checkConnect();
     setUser({ address, chainId: parseInt(chainId) });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address, chainId, wrongNetwork]);
@@ -146,7 +140,7 @@ export default function Home() {
             severity: "error",
             message: error.message,
           });
-          return null;
+          throw error;
         }
       });
     console.log("Approve Tx:", tx);
@@ -175,7 +169,7 @@ export default function Home() {
             severity: "error",
             message: error.message,
           });
-          return null;
+          throw error;
         } else {
           showSnackbar({
             severity: "info",
@@ -220,6 +214,24 @@ export default function Home() {
     setAllowanceAmount(allowanceAmount);
   };
 
+  const checkConnect = () => {
+    if (!address) {
+      showSnackbar({
+        severity: "error",
+        message: "Please connect your wallet.",
+      });
+      return false;
+    }
+    if (wrongNetwork) {
+      showSnackbar({
+        severity: "error",
+        message: "Please switch to Ethereum or BSC Network",
+      });
+      return false;
+    }
+    return true;
+  }
+
   return (
     <Container maxWidth="sm" style={{ height: "calc(100vh - 76px)" }}>
       <Grid container flexDirection="column" justifyContent="center">
@@ -260,7 +272,7 @@ export default function Home() {
                               user={user}
                               setUser={setUser}
                               switchChain={switchChain}
-                              showSnackbar={showSnackbar}
+                              checkConnect={checkConnect}
                             />
                           );
                         case 1:
@@ -271,6 +283,7 @@ export default function Home() {
                               balance={balance}
                               swapAmount={swapAmount}
                               setSwapAmount={setSwapAmount}
+                              checkConnect={checkConnect}
                             />
                           );
                         case 2:
@@ -281,6 +294,7 @@ export default function Home() {
                               swapAmount={convertToWei(swapAmount)}
                               allowanceAmount={allowanceAmount}
                               approve={approve}
+                              checkConnect={checkConnect}
                             />
                           );
                         case 3:
@@ -294,6 +308,7 @@ export default function Home() {
                               swapETHtoBSC={swapETHtoBSC}
                               swapBSCtoETH={swapBSCtoETH}
                               showSnackbar={showSnackbar}
+                              checkConnect={checkConnect}
                             />
                           );
                         default:

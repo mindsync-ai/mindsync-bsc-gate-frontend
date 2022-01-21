@@ -6,6 +6,7 @@ export default function Step2({
   balance,
   swapAmount,
   setSwapAmount,
+  checkConnect,
 }) {
   const marks = [
     {
@@ -25,6 +26,13 @@ export default function Step2({
   const handleSliderChange = (event: Event, newValue: number | number[]) => {
     setSwapAmount(newValue);
   };
+
+  const onNext = () => {
+    if (!checkConnect()) {
+      return;
+    }
+    handleNext();
+  }
 
   return (
     <>
@@ -48,7 +56,7 @@ export default function Step2({
         <div>
           <Button
             variant="contained"
-            onClick={handleNext}
+            onClick={onNext}
             sx={{ mt: 1, mr: 1 }}
           >
             Next

@@ -8,10 +8,14 @@ export default function Step3({
   swapAmount,
   allowanceAmount,
   approve,
+  checkConnect,
 }) {
   const [loading, setLoading] = useState(false);
 
   const increaseAllowance = async () => {
+    if (!checkConnect()) {
+      return;
+    }
     setLoading(true);
     console.log("allowed to spend:", allowanceAmount);
     const diff = swapAmount - allowanceAmount;

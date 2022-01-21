@@ -36,7 +36,6 @@ export const Web3Provider = ({ children }: PropsWithChildren<any>) => {
   const { web3, chainId } = useAuth();
   const { showSnackbar } = useSnackbar();
   const [wrongNetwork, setWrongNetwork] = useState(false);
-//   const [web3, setWeb3] = useState<Web3>();
 
   const [contracts, setContracts] = useState<Contracts>({});
 
@@ -44,7 +43,8 @@ export const Web3Provider = ({ children }: PropsWithChildren<any>) => {
     if (!chainId) {
       return;
     }
-    if (parseInt(chainId) !== 1 && parseInt(chainId) !== 56) {
+    const chainIdInt = parseInt(chainId);
+    if (![1, 4, 56, 97].includes(chainIdInt)) {
       showSnackbar({
         severity: "error",
         message: "Wrong network",
@@ -54,27 +54,36 @@ export const Web3Provider = ({ children }: PropsWithChildren<any>) => {
     }
     setWrongNetwork(false);
 
-    const instance = new Web3(
-      parseInt(chainId) === 1 ? config.ETH_Network_RPC : config.BSC_Network_RPC
-    );
-    instance.eth.setProvider(web3.currentProvider);
-    // setWeb3(instance);
+    let contractAddress;
+    if (chainIdInt === 1) {
+      contractAddress = config.ERC20ContractAddress.MAINNET;
+    } else if (chainIdInt === 4) {
+      contractAddress = config.ERC20ContractAddress.RINKEBY;
+    } else if (chainIdInt === 56) {
+      contractAddress = config.BEP20ContractAddress.MAINNET;
+    } else if (chainIdInt === 97) {
+      contractAddress = config.BEP20ContractAddress.TESTNET;
+    }
 
     const tokenContract = new web3.eth.Contract(
       tokenABI as any,
-      parseInt(chainId) === 1
-        ? config.ERC20ContractAddress
-        : config.BEP20ContractAddress
+      contractAddress
     );
+
+    const isMainnet = chainIdInt === 1 || chainIdInt === 56;
 
     const ethSwapContract = new web3.eth.Contract(
       ethSwapABI as any,
-      config.ETHSwapContractAddress
+      isMainnet
+        ? config.ETHSwapContractAddress.MAINNET
+        : config.ETHSwapContractAddress.RINKEBY
     );
 
     const bscSwapContract = new web3.eth.Contract(
       bscSwapABI as any,
-      config.BSCSwapContractAddress
+      isMainnet
+        ? config.BSCSwapContractAddress.MAINNET
+        : config.BSCSwapContractAddress.TESTNET
     );
 
     setContracts({

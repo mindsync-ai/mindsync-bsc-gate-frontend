@@ -5,7 +5,7 @@ export default function Step1({
   user,
   setUser,
   switchChain,
-  showSnackbar,
+  checkConnect,
 }) {
   const handleChange = async (event) => {
     const chainId = parseInt(event.target.value);
@@ -18,12 +18,8 @@ export default function Step1({
     }
   };
 
-  const checkConnect = () => {
-    if (!user.address) {
-      showSnackbar({
-        severity: "error",
-        message: "Please connect your wallet.",
-      });
+  const onNext = () => {
+    if (!checkConnect()) {
       return;
     }
     handleNext();
@@ -44,12 +40,14 @@ export default function Step1({
       >
         <MenuItem value={1}>Ethereum → BSC</MenuItem>
         <MenuItem value={56}>BSC → Ethereum</MenuItem>
+        <MenuItem value={56}>ETH Rinkeby → BSC Testnet</MenuItem>
+        <MenuItem value={97}>BSC Testnet → ETH Rinkeby</MenuItem>
       </Select>
       <Box sx={{ mb: 2 }}>
         <div>
           <Button
             variant="contained"
-            onClick={checkConnect}
+            onClick={onNext}
             sx={{ mt: 1, mr: 1 }}
           >
             Next

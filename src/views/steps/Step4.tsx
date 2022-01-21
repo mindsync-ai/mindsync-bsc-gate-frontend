@@ -10,10 +10,15 @@ export default function Step4({
   swapETHtoBSC,
   swapBSCtoETH,
   showSnackbar,
+  checkConnect,
 }) {
   const [loading, setLoading] = useState(false);
 
   const swap = async () => {
+    if (!checkConnect()) {
+      return;
+    }
+
     setLoading(true);
     const diff = swapAmount - allowanceAmount;
     if (diff > 0) {
@@ -39,7 +44,7 @@ export default function Step4({
   return (
     <>
       <Typography fontSize={18} mb={2}>
-        Your allowed to spend: {allowanceAmount}
+        Your allowed to spend: {swapAmount}
       </Typography>
       <Typography fontSize={18}>
         At this stage you we will send MAI tokens to swap contract.

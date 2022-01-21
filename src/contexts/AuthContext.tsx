@@ -20,8 +20,8 @@ const providerOptions = {
     package: WalletConnectProvider, // required
     options: {
       rpc: {
-        1: config.ETH_Network_RPC,
-        56: config.BSC_Network_RPC,
+        1: config.JSON_RPC.ETH_MAINNET,
+        56: config.JSON_RPC.BSC_MAINNET,
       },
     },
   },
@@ -113,7 +113,7 @@ export const AuthProvider = ({ children }) => {
     if (chainId !== 1 && chainId !== 56) {
       showSnackbar({
         severity: "error",
-        message: "Other Network",
+        message: "Wrong Network",
       });
       return false;
     }
@@ -130,7 +130,6 @@ export const AuthProvider = ({ children }) => {
         const chain = await web3.eth.getChainId();
         setAddress(accounts[0]);
         setChainId(chain);
-        console.log('chain--------', accounts[0], chain);
         showSnackbar({
           severity: "info",
           message: "Network Changed",
